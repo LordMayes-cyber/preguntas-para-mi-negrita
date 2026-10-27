@@ -4,7 +4,7 @@
   "buildCommand": "",
   "installCommand": "",
   "outputDirectory": "public",
-  "functions": { "api/rooms.ts": { "maxDuration": 30 } },
+  "functions": { "api/rooms.mjs": { "maxDuration": 30 } },
   "rewrites": [
     { "source": "/api/rooms/:_route*", "destination": "/api/rooms?_route=:_route*" }
   ],

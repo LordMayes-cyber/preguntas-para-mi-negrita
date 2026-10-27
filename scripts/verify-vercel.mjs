@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { proxy } from "../vercel-site/lib/proxy.ts";
+import { GET, POST } from "../vercel-site/api/rooms.mjs";
 import { apiPath, creatorPath, respondentPath } from "../lib/client-urls.ts";
 const id = "cb4c4967-27d9-4452-bd1a-ca8e14d43722";
 const origin = "https://preguntas-para-mi-negrita.vercel.app";
@@ -28,4 +29,10 @@ globalThis.__SAME_ORIGIN_API__ = true;
 assert.equal(creatorPath(id, "token"), `/?edit=1&room=${id}#key=token`);
 assert.equal(respondentPath(id), `/?room=${id}`);
 assert.equal(apiPath("/api/rooms"), "/api/rooms");
+const originalFetch = globalThis.fetch;
+try {
+  globalThis.fetch = fetcher;
+  assert.equal((await GET(new Request(`${origin}/api/rooms/${id}`))).status, 200);
+  assert.equal((await POST(new Request(`${origin}/api/rooms`, { method: "POST", body: "{}" }))).status, 200);
+} finally { globalThis.fetch = originalFetch; }
 console.log("PASS: root URLs, same-origin API, private authorization, preserved submissions, restricted proxy and failures.");
