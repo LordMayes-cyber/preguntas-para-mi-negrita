@@ -13,7 +13,9 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "build:pages": "node scripts/build-github-pages.mjs",
-    "test:pages": "node scripts/verify-pages.mjs"
+    "test:pages": "node scripts/verify-pages.mjs",
+    "build:vercel": "node scripts/build-vercel-site.mjs",
+    "test:vercel": "node scripts/verify-vercel.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

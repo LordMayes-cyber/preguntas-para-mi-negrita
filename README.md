@@ -10,6 +10,16 @@ Los enlaces privados incluyen `?edit=1&room=...#key=...`. Los enlaces para respo
 
 El enlace privado de gestión y las respuestas personales no forman parte de este repositorio.
 
+## Dirección independiente del nombre de GitHub
+
+`vercel-site/` contiene una versión preparada para publicar en un proyecto de Vercel con raíz `vercel-site`. La página utiliza rutas desde `/` y una API del mismo dominio. Los nombres de la cuenta de GitHub y del servicio de datos no aparecen en el código del navegador ni en sus enlaces.
+
+La función `api/rooms.ts` comunica únicamente las operaciones de esta aplicación con el servicio de datos existente. Conserva la autorización privada, las preguntas y el historial; no transfiere cookies ni identifica al visitante con una cuenta de Vercel. El despliegue no requiere migrar la base de datos ni añadir claves al repositorio.
+
+- `npm run build:vercel` actualiza la página en `vercel-site/public/`.
+- `npm run test:vercel` verifica las rutas, la autorización y la comunicación con el servicio de datos.
+- El proyecto no está publicado en Vercel hasta confirmar su despliegue con una conexión autenticada.
+
 ## Entre nosotros
 
 Una página de amor para dos: preguntas editables, enlace para responder sin cuenta, preguntas de una en una, historial de intentos y carta final.
