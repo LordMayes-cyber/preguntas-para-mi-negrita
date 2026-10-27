@@ -1,4 +1,12 @@
-# Entre nosotros
+# Preguntas para mi negrita
+
+**Enlace para ella:** https://lordmayes-cyber.github.io/preguntas-para-mi-negrita/
+
+GitHub guarda el código del proyecto y publica el acceso personalizado desde `docs/`. Este acceso abre el cuestionario guardado en Sites, donde la base de datos mantiene las preguntas, las cartas y todo el historial entre dispositivos. GitHub Pages sirve únicamente la página de entrada; la aplicación completa utiliza su servidor en Sites.
+
+El enlace privado de gestión y las respuestas personales no forman parte de este repositorio.
+
+## Entre nosotros
 
 Una página de amor para dos: preguntas editables, enlace para responder sin cuenta, preguntas de una en una, historial de intentos y carta final.
 
