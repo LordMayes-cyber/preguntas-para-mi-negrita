@@ -2,8 +2,13 @@ import assert from "node:assert/strict";
 const origin = process.env.LOVE_TEST_ORIGIN || "http://127.0.0.1:5173";
 if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(origin)) throw new Error("Run integration checks against the local preview only.");
 async function request(path, options = {}) {
-  const response = await fetch(origin + path, { ...options, headers: { "Content-Type": "application/json", ...options.headers } });
-  return { status: response.status, data: await response.json() };
+  const requestOrigin = process.env.LOVE_TEST_ORIGIN_HEADER;
+  const response = await fetch(origin + path, { ...options, headers: { "Content-Type": "application/json", ...(requestOrigin ? { Origin: requestOrigin } : {}), ...options.headers } });
+  if (requestOrigin) assert.equal(response.headers.get("Access-Control-Allow-Origin"), requestOrigin);
+  const raw = await response.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error(`${options.method || "GET"} ${path} returned ${response.status}: ${raw.slice(0,200)}`); }
+  return { status: response.status, data };
 }
 const draft = { sender: "Prueba", recipient: "Mi amor", title: "Un recuerdo de prueba", questions: ["¿Tu recuerdo favorito?", "¿Nuestro próximo sueño?"], letter: "Una carta que se revela al terminar." };
 const created = await request("/api/rooms", { method: "POST", body: JSON.stringify(draft) });

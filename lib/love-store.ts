@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { isAllowedApiOrigin } from "./api-cors";
 type Room = { id: string; manage_hash: string; sender: string; recipient: string; title: string; questions: string; letter: string; revision: string; created_at: string };
 type Submission = { id: string; room_id: string; attempt: number; answers: string; letter: string; sender: string; recipient: string; created_at: string };
 class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
@@ -13,9 +14,9 @@ export async function safe(run: () => Promise<Response>) {
   }
 }
 async function body(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) throw new HttpError(403, "Este enlace no permite esa acción.");
   const raw = await request.text();
+  const origin = request.headers.get("origin");
+  if (origin && !isAllowedApiOrigin(origin, request.url)) throw new HttpError(403, "Este enlace no permite esa acción.");
   if (raw.length > 150000) throw new HttpError(413, "El contenido es demasiado largo.");
   try { const parsed = JSON.parse(raw); if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw 0; return parsed; }
   catch { throw new HttpError(400, "Revisa los datos e inténtalo de nuevo."); }
@@ -55,13 +56,15 @@ export async function getRoom(request: Request, id: string) {
   return json({ ...publicRoom(room), letter: room.letter, history: history.results.map(row => ({ id: row.id, attempt: row.attempt, answers: JSON.parse(row.answers), createdAt: row.created_at })) });
 }
 export async function updateRoom(request: Request, id: string) {
+  // Consume write bodies before early authorization returns so workerd can reuse the connection safely.
+  const payload = await body(request);
   const room = await findRoom(id); await authorize(request, room);
-  const data = content(await body(request)); const revision = crypto.randomUUID();
+  const data = content(payload); const revision = crypto.randomUUID();
   await db().prepare("UPDATE rooms SET sender=?, recipient=?, title=?, questions=?, letter=?, revision=? WHERE id=?").bind(data.sender, data.recipient, data.title, JSON.stringify(data.questions), data.letter, revision, id).run();
   return json({ id, revision });
 }
 export async function submitAnswers(request: Request, id: string) {
-  const room = await findRoom(id), data = await body(request);
+  const data = await body(request), room = await findRoom(id);
   if (typeof data.id !== "string" || !idPattern.test(data.id)) throw new HttpError(400, "El intento no es válido.");
   const prior = await db().prepare("SELECT * FROM submissions WHERE id=?").bind(data.id).first<Submission>();
   if (prior) { if (prior.room_id !== id) throw new HttpError(409, "Este intento no corresponde al enlace."); return json(receipt(prior)); }

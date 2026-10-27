@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, Check, Copy, Eye, Heart, HelpCircle, Link2, LockKeyhole, Mail, MessageCircle, Plus, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
 import { api, Brand, dateLabel, Envelope, initialDraft, type Draft, type History } from "./shared";
 import { Journey } from "./Respondent";
+import { creatorPath, respondentPath } from "../../lib/client-urls";
 type Owner = { id: string; token: string };
 type Managed = Draft & { id: string; revision: string; history: History[] };
 type Tab = "questions" | "letter" | "answers";
@@ -46,7 +47,7 @@ export default function Creator() {
           const next: Draft = { sender: data.sender, recipient: data.recipient, title: data.title, questions: data.questions, letter: data.letter };
           setDraft(next); setSaved(JSON.stringify(next)); setOwner(credentials); setHistory(data.history);
           write("en-owner-v1", JSON.stringify(credentials));
-          window.history.replaceState(null, "", `/?room=${credentials.id}#key=${credentials.token}`);
+          window.history.replaceState(null, "", creatorPath(credentials.id, credentials.token));
         } else {
           const localDraft = read("en-draft-v1");
           if (localDraft) { const parsed = JSON.parse(localDraft); if (Array.isArray(parsed.questions) && typeof parsed.letter === "string") setDraft(parsed); }
@@ -85,7 +86,7 @@ export default function Creator() {
       else {
         const data = await api<Owner>("/api/rooms", { method: "POST", body: JSON.stringify(next) });
         const credentials = { id: data.id, token: data.token }; setOwner(credentials); write("en-owner-v1", JSON.stringify(credentials));
-        window.history.replaceState(null, "", `/?room=${data.id}#key=${data.token}`); setModal("share");
+        window.history.replaceState(null, "", creatorPath(data.id, data.token)); setModal("share");
       }
       setDraft(next); setSaved(JSON.stringify(next)); setNotice("Tu sorpresa está guardada y lista para compartir.");
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
@@ -95,8 +96,8 @@ export default function Creator() {
     if (!owner) return; setRefreshing(true); setError("");
     try { const data = await api<Managed>(`/api/rooms/${owner.id}?manage=1`, { headers: { Authorization: `Bearer ${owner.token}` } }); setHistory(data.history); setNotice("Respuestas actualizadas."); } catch (e) { setError((e as Error).message); } finally { setRefreshing(false); }
   }
-  const respondentUrl = owner && typeof location !== "undefined" ? `${location.origin}/r/${owner.id}` : "";
-  const ownerUrl = owner && typeof location !== "undefined" ? `${location.origin}/?room=${owner.id}#key=${owner.token}` : "";
+  const respondentUrl = owner && typeof location !== "undefined" ? `${location.origin}${respondentPath(owner.id)}` : "";
+  const ownerUrl = owner && typeof location !== "undefined" ? `${location.origin}${creatorPath(owner.id, owner.token)}` : "";
   const total = draft.questions.length;
   return <div className="creator-shell">
     <aside className="sidebar"><Brand /><div className="sidebar-caption">UN PEQUEÑO MUNDO PARA DOS</div><div className="space-label">TU ESPACIO <span>♡</span></div>
