@@ -1,6 +1,10 @@
 # Preguntas para mi negrita
 
-**Enlace para ella:** https://lordmayes-cyber.github.io/preguntas-para-mi-negrita/
+**Enlace para ella:** https://preguntas-para-mi-negrita.vercel.app/
+
+**Crear o abrir el módulo de edición:** https://preguntas-para-mi-negrita.vercel.app/?edit=1
+
+El enlace principal funciona directamente en Vercel. La versión de GitHub Pages sigue disponible como alternativa.
 
 GitHub Pages publica la aplicación completa del navegador desde `docs/`, sin redirecciones ni marcos incrustados. La dirección permanece en `lordmayes-cyber.github.io` durante las preguntas, la carta, los nuevos intentos y la edición. El servicio de datos existente sigue guardando las preguntas, las cartas y el historial entre dispositivos.
 
@@ -14,11 +18,13 @@ El enlace privado de gestión y las respuestas personales no forman parte de est
 
 `vercel-site/` contiene una versión preparada para publicar en un proyecto de Vercel con raíz `vercel-site`. La página utiliza rutas desde `/` y una API del mismo dominio. Los nombres de la cuenta de GitHub y del servicio de datos no aparecen en el código del navegador ni en sus enlaces.
 
-La función `api/rooms.ts` comunica únicamente las operaciones de esta aplicación con el servicio de datos existente. Conserva la autorización privada, las preguntas y el historial; no transfiere cookies ni identifica al visitante con una cuenta de Vercel. El despliegue no requiere migrar la base de datos ni añadir claves al repositorio.
+La función `api/rooms.mjs`, generada desde `lib/proxy.ts`, comunica únicamente las operaciones de esta aplicación con el servicio de datos existente. Conserva la autorización privada, las preguntas y el historial; no transfiere cookies ni identifica al visitante con una cuenta de Vercel. El despliegue no requiere migrar la base de datos ni añadir claves al repositorio.
 
 - `npm run build:vercel` actualiza la página en `vercel-site/public/`.
 - `npm run test:vercel` verifica las rutas, la autorización y la comunicación con el servicio de datos.
-- El proyecto no está publicado en Vercel hasta confirmar su despliegue con una conexión autenticada.
+- Proyecto de producción: `preguntas-para-mi-negrita` en el equipo `lordmayes-cybers-projects`.
+- Publicado mediante Vercel Drop. Para actualizarlo, compilar `npm run build:vercel` y cargar el contenido completo de `vercel-site/` al mismo proyecto. El repositorio conserva la fuente; no hay despliegue automático de Vercel en cada push.
+- Verificado en producción: preguntas existentes, nuevos guardados, respuestas 1 y 2, reintentos sin duplicados, historial privado y carta final.
 
 ## Entre nosotros
 
